@@ -1420,6 +1420,7 @@ void cmd_exit(struct vty *vty)
 	case NH_GROUP_NODE:
 	case ZEBRA_NODE:
 	case BGP_NODE:
+	case RPKI_NODE:
 	case RIP_NODE:
 	case EIGRP_NODE:
 	case BABEL_NODE:
@@ -1528,6 +1529,7 @@ DEFUN (config_end,
 	case BGP_EVPN_NODE:
 	case BGP_EVPN_VNI_NODE:
 	case BGP_IPV6L_NODE:
+	case RPKI_NODE:
 	case RMAP_NODE:
 	case PBRMAP_NODE:
 	case OSPF_NODE:

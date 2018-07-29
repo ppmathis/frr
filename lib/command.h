@@ -337,6 +337,7 @@ struct cmd_node {
 #define DEBUG_STR "Debugging functions\n"
 #define UNDEBUG_STR "Disable debugging functions (see also 'debug')\n"
 #define ROUTER_STR "Enable a routing process\n"
+#define MODULE_STR "Enable a module\n"
 #define AS_STR "AS number\n"
 #define MBGP_STR "MBGP information\n"
 #define MATCH_STR "Match values from routing table\n"

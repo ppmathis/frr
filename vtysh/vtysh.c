@@ -1409,37 +1409,6 @@ DEFUNSH(VTYSH_BGPD, address_family_ipv6_labeled_unicast,
 	return CMD_SUCCESS;
 }
 
-#if defined(HAVE_RPKI)
-DEFUNSH(VTYSH_BGPD,
-	rpki,
-	rpki_cmd,
-	"rpki",
-	"Enable rpki and enter rpki configuration mode\n")
-{
-	vty->node = RPKI_NODE;
-	return CMD_SUCCESS;
-}
-
-DEFUNSH(VTYSH_BGPD,
-	rpki_exit,
-	rpki_exit_cmd,
-	"exit",
-	"Exit current mode and down to previous mode\n")
-{
-	vty->node = CONFIG_NODE;
-	return CMD_SUCCESS;
-}
-
-DEFUNSH(VTYSH_BGPD,
-	rpki_quit,
-	rpki_quit_cmd,
-	"quit",
-	"Exit current mode and down to previous mode\n")
-{
-	return rpki_exit(self, vty, argc, argv);
-}
-#endif
-
 DEFUNSH(VTYSH_BGPD, address_family_evpn, address_family_evpn_cmd,
 	"address-family <l2vpn evpn>",
 	"Enter Address Family command mode\n"
@@ -1468,6 +1437,19 @@ DEFUNSH(VTYSH_BGPD, bgp_evpn_vni, bgp_evpn_vni_cmd, "vni (1-16777215)",
 	vty->node = BGP_EVPN_VNI_NODE;
 	return CMD_SUCCESS;
 }
+
+#if defined(HAVE_RPKI)
+DEFUNSH(VTYSH_BGPD,
+	module_rpki,
+	module_rpki_cmd,
+	"module rpki",
+	MODULE_STR
+	"Resource Public Key Infrastructure (RPKI)\n")
+{
+	vty->node = RPKI_NODE;
+	return CMD_SUCCESS;
+}
+#endif
 
 #if defined(ENABLE_BGP_VNC)
 DEFUNSH(VTYSH_BGPD, vnc_defaults, vnc_defaults_cmd, "vnc defaults",
@@ -1735,6 +1717,7 @@ static int vtysh_exit(struct vty *vty)
 	case NH_GROUP_NODE:
 	case ZEBRA_NODE:
 	case BGP_NODE:
+	case RPKI_NODE:
 	case RIP_NODE:
 	case RIPNG_NODE:
 	case OSPF_NODE:
@@ -1915,6 +1898,20 @@ DEFUNSH(VTYSH_BGPD, vtysh_quit_bgpd, vtysh_quit_bgpd_cmd, "quit",
 {
 	return vtysh_exit_bgpd(self, vty, argc, argv);
 }
+
+#if defined(HAVE_RPKI)
+DEFUNSH(VTYSH_BGPD, vtysh_exit_rpki, vtysh_exit_rpki_cmd, "exit",
+	"Exit current mode and down to previous mode\n")
+{
+	return vtysh_exit(vty);
+}
+
+DEFUNSH(VTYSH_BGPD, vtysh_quit_rpki, vtysh_quit_rpki_cmd, "quit",
+	"Exit current mode and down to previous mode\n")
+{
+	return vtysh_exit_rpki(self, vty, argc, argv);
+}
+#endif
 
 DEFUNSH(VTYSH_OSPFD, vtysh_exit_ospfd, vtysh_exit_ospfd_cmd, "exit",
 	"Exit current mode and down to previous mode\n")
@@ -3656,13 +3653,6 @@ void vtysh_init_vty(void)
 	install_element(BGP_FLOWSPECV4_NODE, &exit_address_family_cmd);
 	install_element(BGP_FLOWSPECV6_NODE, &exit_address_family_cmd);
 
-#if defined(HAVE_RPKI)
-	install_element(CONFIG_NODE, &rpki_cmd);
-	install_element(RPKI_NODE, &rpki_exit_cmd);
-	install_element(RPKI_NODE, &rpki_quit_cmd);
-	install_element(RPKI_NODE, &vtysh_end_all_cmd);
-#endif
-
 	/* EVPN commands */
 	install_element(BGP_EVPN_NODE, &bgp_evpn_vni_cmd);
 	install_element(BGP_EVPN_VNI_NODE, &exit_vni_cmd);
@@ -3671,6 +3661,14 @@ void vtysh_init_vty(void)
 	install_element(BGP_VNC_DEFAULTS_NODE, &exit_vnc_config_cmd);
 	install_element(BGP_VNC_NVE_GROUP_NODE, &exit_vnc_config_cmd);
 	install_element(BGP_VNC_L2_GROUP_NODE, &exit_vnc_config_cmd);
+
+	/* RPKI module */
+#if defined(HAVE_RPKI)
+	install_element(CONFIG_NODE, &module_rpki_cmd);
+	install_element(RPKI_NODE, &vtysh_exit_rpki_cmd);
+	install_element(RPKI_NODE, &vtysh_quit_rpki_cmd);
+	install_element(RPKI_NODE, &vtysh_end_all_cmd);
+#endif
 
 	install_element(CONFIG_NODE, &key_chain_cmd);
 	install_element(CONFIG_NODE, &vtysh_route_map_cmd);
